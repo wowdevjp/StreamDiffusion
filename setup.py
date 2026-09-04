@@ -57,8 +57,9 @@ _deps = [
     "fire==0.7.1",
     "omegaconf==2.3.0",
     "onnx==1.18.0",  # onnx-graphsurgeon 0.5.8 requires onnx.helper.float32_to_bfloat16 (removed in onnx 1.19+)
-    "onnxruntime==1.24.3",
-    "onnxruntime-gpu==1.24.3",
+    "onnxruntime==1.24.4",  # WOW 2026-09: onnxruntime-gpu 1.24.3 was never published on PyPI (1.24.1 -> 1.24.4)
+    "onnxruntime-gpu==1.24.4",
+    "stringzilla==5.1.1",  # WOW 2026-09: 5.1.2 ships no cp311/win_amd64 wheel -> source build fails (insightface > albumentations > albucore)
     "polygraphy==0.49.26",
     "protobuf>=4.25.8,<5",  # mediapipe 0.10.21 requires protobuf 4.x; 4.25.8 fixes CVE-2025-4565; CVE-2026-0994 (JSON DoS) accepted risk for local pipeline
     "colored==2.3.1",
@@ -84,7 +85,7 @@ extras["xformers"] = deps_list("xformers")
 extras["torch"] = deps_list("torch", "accelerate")
 extras["tensorrt"] = deps_list("protobuf", "cuda-python", "onnx", "onnxruntime", "onnxruntime-gpu", "colored", "polygraphy", "onnx-graphsurgeon")
 extras["controlnet"] = deps_list("onnx-graphsurgeon", "controlnet-aux")
-extras["ipadapter"] = deps_list("diffusers-ipadapter", "mediapipe", "insightface")
+extras["ipadapter"] = deps_list("diffusers-ipadapter", "mediapipe", "insightface", "stringzilla")
 
 extras["dev"] = extras["xformers"] + extras["torch"] + extras["tensorrt"] + extras["controlnet"]
 
