@@ -1140,12 +1140,23 @@ class StreamDiffusionWrapper:
                 (StableDiffusionXLPipeline.from_single_file, "SDXL from_single_file")
             ]
 
+        def _run_loader(method):
+            # WOW 2026-09: for hub repos / model dirs, fetch and load only the fp16 variant when we run in fp16
+            # (SDXL base: ~7GB download instead of ~20GB, and no fp32 -> fp16 cast at startup).
+            # Repos without an fp16 variant fall back to the default files.
+            if method is AutoPipelineForText2Image.from_pretrained and self.dtype == torch.float16:
+                try:
+                    return method(model_id_or_path, variant="fp16", torch_dtype=self.dtype)
+                except Exception as variant_error:
+                    logger.info(f"_load_model: fp16 variant unavailable for {model_id_or_path} ({variant_error}); loading default variant")
+            return method(model_id_or_path).to(dtype=self.dtype)
+
         pipe = None
         last_error = None
         for method, method_name in loading_methods:
             try:
                 logger.info(f"_load_model: Attempting to load with {method_name}...")
-                pipe = method(model_id_or_path).to(dtype=self.dtype)
+                pipe = _run_loader(method)
                 logger.info(f"_load_model: Successfully loaded using {method_name}")
                 
                 # Verify that we have the right pipeline type for SDXL models
